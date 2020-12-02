@@ -22,6 +22,7 @@
                 :components ((:file "structures")
                              (:file "classes")
                              (:file "plists")
+                             (:file "alists")
                              (:file "arrays")
                              (:file "functions")
                              #+allegro
