@@ -332,10 +332,11 @@ of arguments and then the function body (in an implicit progn)."
                                    (second (second declaration)))
                                var-names))
                          ;; type
-                         (member (third declaration) var-names)) collect
-                         (progn
-                           (setf *all-declarations* (remove declaration *all-declarations*))
-                           declaration))))
+                         (member (third declaration) var-names))
+                  collect
+                  (progn
+                    (setf *all-declarations* (remove declaration *all-declarations*))
+                    declaration))))
     (when declaration
       `((declare ,@declaration)))))
 
