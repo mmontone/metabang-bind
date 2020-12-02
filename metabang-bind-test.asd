@@ -11,29 +11,27 @@
   :licence "MIT Style License"
   :description "Tests for metabang-bind"
   :components ((:module "setup"
-			:pathname "unit-tests/"
-                        :components ((:file "package")
-				     (:file "utilities" :depends-on ("package"))
-                                     (:file "test-bind" 
-                                            :depends-on ("package"))))
+                :pathname "unit-tests/"
+                :components ((:file "package")
+                             (:file "utilities" :depends-on ("package"))
+                             (:file "test-bind"
+                              :depends-on ("package"))))
                (:module "tests"
-			:pathname "unit-tests/"
-			:depends-on ("setup")
-                        :components ((:file "structures")
-				     (:file "classes")
-				     (:file "plists")
-				     (:file "arrays")
-				     (:file "functions")
-				     #+allegro
-				     (:file "regex"))))
+                :pathname "unit-tests/"
+                :depends-on ("setup")
+                :components ((:file "structures")
+                             (:file "classes")
+                             (:file "plists")
+                             (:file "arrays")
+                             (:file "functions")
+                             #+allegro
+                             (:file "regex"))))
   :depends-on (:metabang-bind :lift))
 
-#+asdf-system-connections 
+#+asdf-system-connections
 (asdf:defsystem-connection bind-and-cl-ppcre-test
   :requires (metabang-bind-test cl-ppcre)
   :components ((:module
-		"bind-and-cl-ppcre"
-		:pathname "unit-tests/"
-		:components ((:file "regex")))))
-
-
+                "bind-and-cl-ppcre"
+                :pathname "unit-tests/"
+                :components ((:file "regex")))))
