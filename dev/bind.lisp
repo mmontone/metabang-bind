@@ -301,19 +301,21 @@ of arguments and then the function body (in an implicit progn)."
     (nreverse result)))
 
 (defun bind-expand-declarations (declarations)
-  (loop for declaration in declarations append
-                                        (loop for decl in (rest declaration) append
-                                                                             (cond ((member (first decl) *bind-non-var-declarations*)
-                                                                                    (list decl))
-                                                                                   ((member (first decl) *bind-simple-var-declarations*)
-                                                                                    (loop for var in (rest decl) collect
-                                                                                          `(,(first decl) ,var)))
-                                                                                   (t
-                                                                                    ;; a type spec
-                                                                                    (when (eq (first decl) 'type)
-                                                                                      (setf decl (rest decl)))
-                                                                                    (loop for var in (rest decl) collect
-                                                                                          `(type ,(first decl) ,var)))))))
+  (loop for declaration in declarations
+        append
+        (loop for decl in (rest declaration)
+              append
+              (cond ((member (first decl) *bind-non-var-declarations*)
+                     (list decl))
+                    ((member (first decl) *bind-simple-var-declarations*)
+                     (loop for var in (rest decl) collect
+                           `(,(first decl) ,var)))
+                    (t
+                     ;; a type spec
+                     (when (eq (first decl) 'type)
+                       (setf decl (rest decl)))
+                     (loop for var in (rest decl) collect
+                           `(type ,(first decl) ,var)))))))
 
 (defun bind-filter-declarations (var-names)
   (setf var-names (if (consp var-names) var-names (list var-names)))
