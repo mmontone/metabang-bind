@@ -380,32 +380,33 @@ This is similar to dynamic-binding but _much_ less robust."
   (let ((setup-forms nil)
         (cleanup-forms nil)
         (gensyms nil))
-    (loop for binding in bindings collect
-                                  (destructuring-bind
-                                      (setup-form cleanup-form)
-                                      (cond ((consp binding)
-                                             (destructuring-bind (var value) binding
-                                               (let ((g (gensym)))
-                                                 (push g gensyms)
-                                                 (cond ((atom var)
-                                                        `((:bind (,var ,value)) nil)
-                                                        #+(or)
-                                                        ;; lexical or special?
-                                                        (if (boundp var)
-                                                            `((:bind (,var ,value)) nil)
-                                                            `((:setf (setf ,g ,var ,var ,value))
-                                                              (setf ,var ,g))))
-                                                       ((and (fboundp (first var))
-                                                             (not (eq (first var) 'values)))
-                                                        ;; putative place
-                                                        `((:setf (setf ,g ,var ,var ,value))
-                                                          (setf ,var ,g)))
-                                                       (t
-                                                        `((:bind (,var ,value)) nil))))))
-                                            (t
-                                             `((:bind (,binding nil)) nil)))
-                                    (push setup-form setup-forms)
-                                    (push cleanup-form cleanup-forms)))
+    (loop for binding in bindings
+          collect
+          (destructuring-bind
+              (setup-form cleanup-form)
+              (cond ((consp binding)
+                     (destructuring-bind (var value) binding
+                       (let ((g (gensym)))
+                         (push g gensyms)
+                         (cond ((atom var)
+                                `((:bind (,var ,value)) nil)
+                                #+(or)
+                                ;; lexical or special?
+                                (if (boundp var)
+                                    `((:bind (,var ,value)) nil)
+                                    `((:setf (setf ,g ,var ,var ,value))
+                                      (setf ,var ,g))))
+                               ((and (fboundp (first var))
+                                     (not (eq (first var) 'values)))
+                                ;; putative place
+                                `((:setf (setf ,g ,var ,var ,value))
+                                  (setf ,var ,g)))
+                               (t
+                                `((:bind (,var ,value)) nil))))))
+                    (t
+                     `((:bind (,binding nil)) nil)))
+            (push setup-form setup-forms)
+            (push cleanup-form cleanup-forms)))
     (let ((result body))
       (mapc (lambda (setup cleanup)
               (setf result
