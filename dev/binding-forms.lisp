@@ -463,6 +463,12 @@ Putting this altogether we can code the above let statement as:
     ==> (368421722 368494926 no)
 
 (which takes some getting used to but has the advantage of brevity).
+
+It is possible to use &rest in plists as well:
+
+(bind (((:plist x y &rest rs) (list :x 'x :y 'y :z 'z)))
+  (list x y z))
+==> (x y (z))
 ")
   (handle-plist variables values t))
 
@@ -480,29 +486,70 @@ keywords as keys. For example:
                   )
   (handle-plist variables values nil))
 
+(defun plist-without (plist keys)
+  "Returns a new plist does doesn't contain KEYS"
+  (loop for key in plist by #'cddr
+        for value in (rest plist) by #'cddr
+        for not-member := (not (member key keys))
+        when not-member
+          collect key
+        when not-member
+          collect value))
+
+(defun extract-&rest (list)
+  "Extracts &rest argument from list.
+Returns multiple values with list without &rest parameter, and the &rest parameter as second value, if present.
+
+(extract-&rest '(a b c &rest z)) ==> (a b c), z"
+  (let (not-rest rest rest-found-p)
+    (dolist (elem list)
+      (cond
+        ((eql elem '&rest)
+         (setf rest-found-p t))
+        (rest-found-p
+         (setf rest elem))
+        (t (push elem not-rest))))
+    (values (nreverse not-rest) rest)))
+
 (defun handle-plist (variables values form-keywords?)
-  `(let* ,(loop for spec in variables collect
-                                      (let* ((spec (if (consp spec) spec (list spec)))
-                                             (var-name (first spec))
-                                             var-key var-default)
-                                        (case (length spec)
-                                          (1 (setf var-key (first spec)))
-                                          (2 (setf var-key (second spec)))
-                                          (3 (setf var-key (second spec)
-                                                   var-default (third spec)))
-                                          (t
-                                           (error "bad properly list variable specification: ~s"
-                                                  spec)))
-                                        (when (string= (symbol-name var-key) "_")
-                                          (setf var-key var-name))
-                                        (when form-keywords?
-                                          (setf var-key (let ((*package* (find-package :keyword)) *read-eval*)
-                                                          (read-from-string (symbol-name var-key)))))
-                                        `(,var-name (getf ,values
-                                                          ,(if form-keywords?
-                                                               var-key `',var-key)
-                                                          ,@(when var-default
-                                                              `(,var-default))))))))
+  (multiple-value-bind (vars rest) (extract-&rest variables)
+    `(let* ,(append
+             ;; Variables
+             (loop for spec in vars
+                   collect
+                   (let* ((spec (if (consp spec) spec (list spec)))
+                          (var-name (first spec))
+                          var-key var-default)
+                     (case (length spec)
+                       (1 (setf var-key (first spec)))
+                       (2 (setf var-key (second spec)))
+                       (3 (setf var-key (second spec)
+                                var-default (third spec)))
+                       (t
+                        (error "bad properly list variable specification: ~s"
+                               spec)))
+                     (when (string= (symbol-name var-key) "_")
+                       (setf var-key var-name))
+                     (when form-keywords?
+                       (setf var-key (let ((*package* (find-package :keyword)) *read-eval*)
+                                       (read-from-string (symbol-name var-key)))))
+                     `(,var-name (getf ,values
+                                       ,(if form-keywords?
+                                            var-key `',var-key)
+                                       ,@(when var-default
+                                           `(,var-default))))))
+             ;; &rest binding
+             (when rest
+               (let ((var-names (loop for spec in vars
+                                      collect
+                                      (let* ((spec (if (consp spec) spec (list spec))))
+                                        (intern (string (first spec)) :keyword)))))
+                 (list (list rest
+                             `(plist-without ,values ',var-names)))))))))
+
+#+(or)
+(bind (((:plist x &rest xs) (list :x 22 :y 44)))
+  (list* :x x xs))
 
 #+(or)
 (bind (((:plist a (b _) (c _ 2) (dd d)) '(:b "B" :a "A" :d "D")))
