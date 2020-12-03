@@ -372,12 +372,13 @@ See [read-only-slots][read-only-slots-binding-spec] for a
 variant that provides only read-write access to the class."
                   )
   `(with-slots
-         (,@(loop for var in variables collect
-                                       (let ((var-var (or (and (consp var) (first var))
-                                                          var))
-                                             (var-accessor (or (and (consp var) (second var))
-                                                               var)))
-                                         `(,var-var ,var-accessor))))
+         (,@(loop for var in variables
+                  collect
+                  (let ((var-var (or (and (consp var) (first var))
+                                     var))
+                        (var-accessor (or (and (consp var) (second var))
+                                          var)))
+                    `(,var-var ,var-accessor))))
        ,values))
 
 ;;;;
@@ -400,12 +401,13 @@ Where `accessor-spec` can be an atom or a list with two elements.
 See [accessors][accessors-binding-spec] for a
 variant that provides only read-write access to the class."
                   )
-  `(let* ,(loop for var in variables collect
-                                     (let ((var-var (or (and (consp var) (first var))
-                                                        var))
-                                           (var-accessor (or (and (consp var) (second var))
-                                                             var)))
-                                       `(,var-var (,var-accessor ,values))))))
+  `(let* ,(loop for var in variables
+                collect
+                (let ((var-var (or (and (consp var) (first var))
+                                   var))
+                      (var-accessor (or (and (consp var) (second var))
+                                        var)))
+                  `(,var-var (,var-accessor ,values))))))
 
 (defbinding-form ((:accessors :writable-accessors)
                   :docstring "The `:accessors` binding form is short hand for the `with-accessors` macro.
@@ -424,12 +426,13 @@ See [read-only-accessors][read-only-accessors-binding-spec] for a
 variant that provides only read-only access to the class."
                   )
   `(with-accessors
-         (,@(loop for var in variables collect
-                                       (let ((var-var (or (and (consp var) (first var))
-                                                          var))
-                                             (var-accessor (or (and (consp var) (second var))
-                                                               var)))
-                                         `(,var-var ,var-accessor))))
+         (,@(loop for var in variables
+                  collect
+                  (let ((var-var (or (and (consp var) (first var))
+                                     var))
+                        (var-accessor (or (and (consp var) (second var))
+                                          var)))
+                    `(,var-var ,var-accessor))))
        ,values))
 
 (defbinding-form ((:plist :property-list :properties)
