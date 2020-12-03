@@ -25,6 +25,7 @@
 
 ;; simple but doesn't execute inner code if no bindings found
 ;; which isn't very bind-like
+#+(or)
 (defmethod bind-generate-bindings ((kind (eql :regex)) variable-form value-form)
   ;; (:re "re" vars)
   (bind (((regex &rest vars) variable-form))
@@ -54,6 +55,13 @@
             (unless ,gok
               (doit ,@(make-list (length vars) :initial-element nil)))))))))
 
+;; simple but doesn't execute inner code if no bindings found
+;; which isn't very bind-like
+(bind::defbinding-form ((:regex :re) :use-values-p nil)
+  `(cl-ppcre:register-groups-bind ,(rest bind::variables)
+       (,(first bind::variables)
+        ,bind::values :sharedp t)))
+
 #+(or)
 (bind (((:regex "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
              fname lname date month year) "Frank Zappa 21.12.1940"))
@@ -72,4 +80,4 @@
 
 #+(or)
 (bind (((:regex "(a|b)+" first) "cccc"))
-  (format t "This will still be printed: ~A" first))
+  (format t "This should still be printed: ~A" first))

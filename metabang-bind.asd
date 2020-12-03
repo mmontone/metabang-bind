@@ -26,3 +26,10 @@
 (defmethod operation-done-p
     ((o test-op) (c (eql (find-system 'metabang-bind))))
   (values nil))
+
+#+asdf-system-connections
+(asdf:defsystem-connection bind-and-cl-ppcre
+  :requires (metabang-bind cl-ppcre)
+  :components ((:module
+                "dev"
+                :components ((:file "bind-cl-ppcre")))))
