@@ -309,22 +309,23 @@ to be the same as the variable name).
 
 Note that the variables are bound to the `cdr` of the item in the list
 rather than the `(item . value)` pair.")
-  `(let* ,(loop for spec in variables collect
-                                      (let* ((spec (if (consp spec) spec (list spec)))
-                                             (var-name (first spec))
-                                             var-key var-default)
-                                        (case (length spec)
-                                          (1 (setf var-key (first spec)))
-                                          (2 (setf var-key (second spec)))
-                                          (3 (setf var-key (second spec)
-                                                   var-default (third spec)))
-                                          (t
-                                           (error "bad properly list variable specification: ~s"
-                                                  spec)))
-                                        (when (string= (symbol-name var-key) "_")
-                                          (setf var-key var-name))
-                                        `(,var-name (or (cdr (assoc ',var-key ,values))
-                                                        ,@(when var-default `(,var-default))))))))
+  `(let* ,(loop for spec in variables
+                collect
+                (let* ((spec (if (consp spec) spec (list spec)))
+                       (var-name (first spec))
+                       var-key var-default)
+                  (case (length spec)
+                    (1 (setf var-key (first spec)))
+                    (2 (setf var-key (second spec)))
+                    (3 (setf var-key (second spec)
+                             var-default (third spec)))
+                    (t
+                     (error "bad properly list variable specification: ~s"
+                            spec)))
+                  (when (string= (symbol-name var-key) "_")
+                    (setf var-key var-name))
+                  `(,var-name (or (cdr (assoc ',var-key ,values))
+                                  ,@(when var-default `(,var-default))))))))
 
 ;;;;
 
