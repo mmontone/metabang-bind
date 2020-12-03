@@ -346,12 +346,13 @@ Where `slot-spec` can be an atom or a list with two elements.
 See [slots][slots-binding-spec] for a
 variant that provides only read-write access to the class."
                   )
-  `(let* (,@(loop for var in variables collect
-                                       (let ((var-var (or (and (consp var) (first var))
-                                                          var))
-                                             (var-slot (or (and (consp var) (second var))
-                                                           var)))
-                                         `(,var-var (slot-value ,values ',var-slot)))))))
+  `(let* (,@(loop for var in variables
+                  collect
+                  (let ((var-var (or (and (consp var) (first var))
+                                     var))
+                        (var-slot (or (and (consp var) (second var))
+                                      var)))
+                    `(,var-var (slot-value ,values ',var-slot)))))))
 
 (defbinding-form (:slots
                   :docstring
