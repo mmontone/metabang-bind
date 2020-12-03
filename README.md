@@ -37,6 +37,7 @@ This is a fork of metabang-bind.
 At the moment, it adds:
 
 - Tests.
+- Code indentation fixes.
 - Fixes to regex binding form.
 - &rest arguments in plists binding form.
 - hash-table binding forms.
