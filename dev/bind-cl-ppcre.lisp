@@ -55,10 +55,52 @@
             (unless ,gok
               (doit ,@(make-list (length vars) :initial-element nil)))))))))
 
+;; A rewrite of ppcre:register-groups-bind, that runs body regardless of if there are matches or not.
+(defmacro register-groups-bind (var-list (regex target-string
+                                                &key start end sharedp)
+                                &body body)
+  "Executes BODY with the variables in VAR-LIST bound to the
+corresponding register groups after TARGET-STRING has been matched
+against REGEX, i.e. each variable is either bound to a string or to
+NIL.  For each element
+of VAR-LIST which is NIL there's no binding to the corresponding
+register group.  The number of variables in VAR-LIST must not be
+greater than the number of register groups.  If SHAREDP is true, the
+substrings may share structure with TARGET-STRING."
+  (ppcre::with-rebinding (target-string)
+    (ppcre::with-unique-names (match-start match-end reg-starts reg-ends
+                                    start-index substr-fn)
+      (let ((var-bindings
+              (loop for (function var) in (ppcre::normalize-var-list var-list)
+                    for counter from 0
+                    when var
+                      collect `(,var (when ,match-start
+                                       (let ((,start-index
+                                             (aref ,reg-starts ,counter)))
+                                       (if ,start-index
+                                           (funcall ,function
+                                                    (funcall ,substr-fn
+                                                             ,target-string
+                                                             ,start-index
+                                                             (aref ,reg-ends ,counter)))
+                                           nil)))))))
+        `(multiple-value-bind (,match-start ,match-end ,reg-starts ,reg-ends)
+             (ppcre:scan ,regex ,target-string :start (or ,start 0)
+                                               :end (or ,end (length ,target-string)))
+           (declare (ignore ,match-start ,match-end))
+           ,@(unless var-bindings
+               `((declare (ignore ,reg-ends))))
+           ,@(if var-bindings
+                 `((let* ,(list*
+                           `(,substr-fn (if ,sharedp #'ppcre::nsubseq #'subseq))
+                           var-bindings)
+                     ,@body))
+                 body))))))
+
 ;; simple but doesn't execute inner code if no bindings found
 ;; which isn't very bind-like
 (bind::defbinding-form ((:regex :re) :use-values-p nil)
-  `(cl-ppcre:register-groups-bind ,(rest bind::variables)
+  `(register-groups-bind ,(rest bind::variables)
        (,(first bind::variables)
         ,bind::values :sharedp t)))
 
