@@ -122,4 +122,4 @@ substrings may share structure with TARGET-STRING."
 
 #+(or)
 (bind (((:regex "(a|b)+" first) "cccc"))
-  (format t "This should still be printed: ~A" first))
+  (format nil "This should still be printed: ~A" first))
