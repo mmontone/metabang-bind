@@ -4,7 +4,7 @@ bind is let and much much more
 
 ## What it is
 
-Bind extends the idea of of `let` and destructing to provide a uniform syntax for all your accessor needs. It combines _let_, _destructuring-bind_, `with-slots`, `with-accessors`, structure editing, property or association-lists, and _multiple-value-bind_ and a whole lot more into a single form. The [user guide](user-guide.html) has all the details but here is example to whet your appetite:
+Bind extends the idea of of `let` and destructing to provide a uniform syntax for all your accessor needs. It combines _let_, _destructuring-bind_, `with-slots`, `with-accessors`, structure editing, property or association-lists, and _multiple-value-bind_ and a whole lot more into a single form. The [user guide](https://common-lisp.net/project/metabang-bind/user-guide.html) has all the details but here is example to whet your appetite:
 
 ```lisp
     (bind ((a 2)  
