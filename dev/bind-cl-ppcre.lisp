@@ -28,7 +28,7 @@
 (defmethod bind-generate-bindings ((kind (eql :regex)) variable-form value-form)
   ;; (:re "re" vars)
   (bind (((regex &rest vars) variable-form))
-    `((cl-ppcre:register-groups-bind ,vars (,regex ,(first value-form) :sharedp t)))))
+    `(cl-ppcre:register-groups-bind ,vars (,regex ,(first value-form) :sharedp t))))
 
 #+(or)
 ;; doesn't handle ignores
@@ -55,21 +55,21 @@
               (doit ,@(make-list (length vars) :initial-element nil)))))))))
 
 #+(or)
-(bind (((:re "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
+(bind (((:regex "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
              fname lname date month year) "Frank Zappa 21.12.1940"))
   (list fname lname date month year))
 
 #+(or)
 (macroexpand-1
- '(bind (((:re "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
+ '(bind (((:regex "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
            fname lname date month year) "Frank Zappa 21.12.1940"))
    (list fname lname date month year)))
 
 #+(or)
-(bind (((:re "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
+(bind (((:regex "(\\w+)\\s+(\\w+)\\s+(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})"
              fname lname nil month year) "Frank Zappa 21.12.1940"))
   (list fname lname month year))
 
 #+(or)
-(bind (((:re "(a|b)+" first) "cccc"))
+(bind (((:regex "(a|b)+" first) "cccc"))
   (format t "This will still be printed: ~A" first))
