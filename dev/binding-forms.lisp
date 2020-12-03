@@ -580,9 +580,53 @@ E.g.,
   ;; thanks to https://github.com/hyotang666 for the idea and initial code!
   `(with-open-file ,(append variables (if (null (cdr values)) values (car values)))))
 
+;; hash-tables
+
+(defmacro with-hash-table-entries (bindings hash-table &body body)
+  `(symbol-macrolet
+       ,(loop for binding in bindings
+              for binding-name = (if (listp binding)
+                                     (first binding)
+                                     binding)
+              for hash-key = (if (listp binding)
+                                 (second binding)
+                                 `(quote ,binding))
+              collect `(,binding-name (gethash ,hash-key ,hash-table)))
+     ,@body))
+
+#+(or)
+(let ((table (make-hash-table)))
+  (with-hash-table-entries (x y) table
+    (setf x 22)
+    (setf y 34))
+  (gethash 'x table))
+
+#+(or)
+(let ((table (make-hash-table :test 'equalp)))
+  (with-hash-table-entries ((x "x") (y :y)) table
+    (setf x "hello")
+    (setf y "bye"))
+  (with-hash-table-entries ((x "x") (y :y)) table
+    (print x)
+    (print y))
+  (list (gethash "x" table)
+        (gethash :y table)))
+
+(defbinding-form (:hash-table-entries :use-values-p t)
+  "Bind hash table values"
+  `(with-hash-table-entries
+     ,variables
+     ,values))
+
+#+(or)
+(let ((table (make-hash-table)))
+  (bind (((:hash-table-entries x y) table))
+    (setf x 22))
+  (gethash 'x table))          
+
 (defbinding-form (:hash-values :use-values-p t)
   "Bind hash table values"
-  `(symbol-macrolet
+  `(let*
        ,(loop for spec in variables
               collect
               (let* ((spec (if (consp spec) spec (list spec)))
@@ -594,7 +638,7 @@ E.g.,
                   (3 (setf var-key (second spec)
                            var-default (third spec)))
                   (t
-                   (error "bad properly list variable specification: ~s"
+                   (error "bad hash-table variable specification: ~s"
                           spec)))
                 (when (string= (symbol-name var-key) "_")
                   (setf var-key var-name))
@@ -615,13 +659,3 @@ E.g.,
           (setf (gethash 'y table) 'y)
           table)))
   (list x y z))
-
-#+(or)
-(bind ((table (let ((table (make-hash-table)))
-                (setf (gethash 'x table) 'x)
-                (setf (gethash 'y table) 'y)
-                table))
-       ((:hash-values x y (z _ 'z))
-        table))
-  (setf x 'foo)
-  (list (gethash 'x table) y z))
