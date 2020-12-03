@@ -225,19 +225,20 @@ structure references. Declarations are handled using `the`.
     (assert conc-name)
     (assert vars)
     `(symbol-macrolet
-         ,(loop for var in vars collect
-                                (let* ((var-var (or (and (consp var) (first var))
-                                                    var))
-                                       (var-conc (or (and (consp var) (second var))
-                                                     var))
+         ,(loop for var in vars
+                collect
+                (let* ((var-var (or (and (consp var) (first var))
+                                    var))
+                       (var-conc (or (and (consp var) (second var))
+                                     var))
 
-                                       (var-name (let ((*package* (symbol-package conc-name)) *read-eval*)
-                                                   (read-from-string (format nil "~a~a" conc-name var-conc))))
+                       (var-name (let ((*package* (symbol-package conc-name)) *read-eval*)
+                                   (read-from-string (format nil "~a~a" conc-name var-conc))))
 
-                                       (type-declaration (find-type-declaration var-var *all-declarations*)))
-                                  `(,var-var ,(if type-declaration
-                                                  `(the ,type-declaration (,var-name ,values))
-                                                  `(,var-name ,values))))))))
+                       (type-declaration (find-type-declaration var-var *all-declarations*)))
+                  `(,var-var ,(if type-declaration
+                                  `(the ,type-declaration (,var-name ,values))
+                                  `(,var-name ,values))))))))
 
 (defun find-type-declaration (var declarations)
   ;; declarations looks like ((declare (type fixnum a) (optimize ...) ...)
