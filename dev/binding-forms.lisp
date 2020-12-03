@@ -581,22 +581,23 @@ E.g.,
 
 (defbinding-form (:hash-values :use-values-p t)
   "Bind hash table values"
-  `(let* ,(loop for spec in variables
-                collect
-                (let* ((spec (if (consp spec) spec (list spec)))
-                       (var-name (first spec))
-                       var-key var-default)
-                  (case (length spec)
-                    (1 (setf var-key (first spec)))
-                    (2 (setf var-key (second spec)))
-                    (3 (setf var-key (second spec)
-                             var-default (third spec)))
-                    (t
-                     (error "bad properly list variable specification: ~s"
-                            spec)))
-                  (when (string= (symbol-name var-key) "_")
-                    (setf var-key var-name))
-                  `(,var-name (or (gethash ',var-key ,values) ,var-default))))))
+  `(symbol-macrolet
+       ,(loop for spec in variables
+              collect
+              (let* ((spec (if (consp spec) spec (list spec)))
+                     (var-name (first spec))
+                     var-key var-default)
+                (case (length spec)
+                  (1 (setf var-key (first spec)))
+                  (2 (setf var-key (second spec)))
+                  (3 (setf var-key (second spec)
+                           var-default (third spec)))
+                  (t
+                   (error "bad properly list variable specification: ~s"
+                          spec)))
+                (when (string= (symbol-name var-key) "_")
+                  (setf var-key var-name))
+                `(,var-name (or (gethash ',var-key ,values) ,var-default))))))
 
 #+(or)
 (bind (((:hash-values x y z)
@@ -613,3 +614,13 @@ E.g.,
           (setf (gethash 'y table) 'y)
           table)))
   (list x y z))
+
+#+(or)
+(bind ((table (let ((table (make-hash-table)))
+                (setf (gethash 'x table) 'x)
+                (setf (gethash 'y table) 'y)
+                table))
+       ((:hash-values x y (z _ 'z))
+        table))
+  (setf x 'foo)
+  (list (gethash 'x table) y z))
