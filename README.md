@@ -20,12 +20,23 @@ Bind is released under the [MIT license](http://www.opensource.org/licenses/mit-
 
 ## What is happening
 
-10 April 2010 - moved to github; added flet support
+- 10 April 2010 - moved to github; added flet support
 
-28 May 2009 - added `:structure/rw` binding form; updated webpage to link to the user's guide
+- 28 May 2009 - added `:structure/rw` binding form; updated webpage to link to the user's guide
 
-1 Dec 2007 - Added support for [array destructuring](user-guide.html#array-bindings) (Thanks to Tamas Papp for the idea)
+- 1 Dec 2007 - Added support for [array destructuring](user-guide.html#array-bindings) (Thanks to Tamas Papp for the idea)
 
-15 Nov 2007 - New user guide; bind handles structures and property lists and is now extensible!
+- 15 Nov 2007 - New user guide; bind handles structures and property lists and is now extensible!
 
-13 Nov 2005 - Initial webpage n' stuff.
+- 13 Nov 2005 - Initial webpage n' stuff.
+
+## This fork
+
+This is a fork of metabang-bind.
+
+At the moment, it adds:
+
+- Tests.
+- Fixes to regex binding form.
+- &rest arguments in plists binding form.
+- hash-table binding forms.
