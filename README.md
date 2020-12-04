@@ -41,3 +41,4 @@ At the moment, it adds:
 - Fixes to regex binding form.
 - &rest arguments in plists binding form.
 - hash-table binding forms.
+- blambda (lambda expression bindings its arguments using bind) (WIP)
