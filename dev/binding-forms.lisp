@@ -191,14 +191,15 @@ where each `structure-spec` is an atom or list with two elements:
         (vars (rest variables)))
     (assert conc-name)
     (assert vars)
-    `(let* ,(loop for var in vars collect
-                                  (let ((var-var (or (and (consp var) (first var))
-                                                     var))
-                                        (var-conc (or (and (consp var) (second var))
-                                                      var)))
-                                    `(,var-var (,(let ((*package* (symbol-package conc-name)) *read-eval*)
-                                                   (read-from-string (format nil "~a~a" conc-name var-conc)))
-                                                ,values)))))))
+    `(let* ,(loop for var in vars
+                  collect
+                  (let ((var-var (or (and (consp var) (first var))
+                                     var))
+                        (var-conc (or (and (consp var) (second var))
+                                      var)))
+                    `(,var-var (,(let ((*package* (symbol-package conc-name)) *read-eval*)
+                                   (read-from-string (format nil "~a~a" conc-name var-conc)))
+                                ,values)))))))
 
 (defbinding-form ((:structure/rw)
                   :docstring
@@ -615,14 +616,14 @@ E.g.,
 (defbinding-form (:hash-table-entries :use-values-p t)
   "Bind hash table values"
   `(with-hash-table-entries
-     ,variables
-     ,values))
+       ,variables
+       ,values))
 
 #+(or)
 (let ((table (make-hash-table)))
   (bind (((:hash-table-entries x y) table))
     (setf x 22))
-  (gethash 'x table))          
+  (gethash 'x table))
 
 (defbinding-form (:hash-values :use-values-p t)
   "Bind hash table values"
