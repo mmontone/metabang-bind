@@ -24,9 +24,6 @@ item in a binding is a list. Multiple value binding is done if the
 first item in a binding is a list and the first item in the list is
 the keyword ':values'.
 
-
-# Summary
-
 # Some examples
 
 Bind mimics let in its general syntax:
@@ -147,6 +144,25 @@ Putting this altogether we can code the above let statement as:
 
 (which takes some getting used to but has the advantage of brevity).
 
+## Bind with hash-tables
+
+There are two hash-table binders. `hash-table-entries` and `hash-values`.
+
+`hash-table-entries` binds a hash-table entries in a read/write way, translating to `symbol-macrolet`. That means you can both read a hash table entry using a binding, but also set it:
+
+```lisp
+(bind (((:hash-table-entries x y) my-hash-table))
+   (setf x 22)
+   ...)
+```
+
+`hash-values` is read-only, but supports default values:
+
+```lisp
+(bind (((:hash-values (x :x 'my-default) y) my-hash-table))
+   (print x))
+```
+
 ## Bind with structures
 
 Structure fields are accessed using a concatenation of the structure's
@@ -246,7 +262,7 @@ or that are different:
     ==> (1 2 3)
 ```
 
-{anchor array-bindings}
+Note that you can also bind structures slots using `:slots`.
 
 ## Bind with arrays
 
