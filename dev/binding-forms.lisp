@@ -554,17 +554,6 @@ Returns multiple values with list without &rest parameter, and the &rest paramet
                  (list (list rest
                              `(plist-without ,values ',var-names)))))))))
 
-#+(or)
-(bind (((:plist x &rest xs) (list :x 22 :y 44)))
-  (list* :x x xs))
-
-#+(or)
-(bind (((:plist a (b _) (c _ 2) (dd d)) '(:b "B" :a "A" :d "D")))
-  (list a b c dd))
-
-#+(or)
-(bind (((:plist- a (b _) (c _ 2) (dd d)) '(b "B" a "A" d "D")))
-  (list a b c dd))
 
 (defbinding-form (:file :use-values-p nil
                         :accept-multiple-forms-p t)
